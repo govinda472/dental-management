@@ -40,7 +40,7 @@ git clone https://github.com/govinda472/dental-management.git
 
 ### 2. Navigate to the Project Directory
 
-cd bright-smile-dental-management
+cd dental-management
 
 ### 3. Set Up a Virtual Environment 
 
@@ -51,13 +51,15 @@ venv\Scripts\activate      # For Windows
 
 ### 4. Run the Django Development Server
 
+cd dental_management
+
 python manage.py runserver
 
 
 ### 5. Access the Application
 
 http://127.0.0.1:8000/admin/
-
+via your broswer 
 
 Username: admin
 Password: 12345678
