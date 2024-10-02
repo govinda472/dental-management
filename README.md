@@ -36,7 +36,7 @@ To set up and run the project locally, follow these steps:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/govinda472/bright-smile-dental-management.git
+git clone https://github.com/govinda472/dental-management.git
 
 ### 2. Navigate to the Project Directory
 
