@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Clinic - {{ clinic.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Edit Clinic - {{ clinic.name }}</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="name" class="form-label">Clinic Name</label>
+            <input type="text" class="form-control" id="name" name="name" value="{{ clinic.name }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="phone_number" class="form-label">Phone Number</label>
+            <input type="text" class="form-control" id="phone_number" name="phone_number" value="{{ clinic.phone_number }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email" value="{{ clinic.email }}">
+        </div>
+        <div class="mb-3">
+            <label for="address" class="form-label">Address</label>
+            <textarea class="form-control" id="address" name="address" required>{{ clinic.address }}</textarea>
+        </div>
+        <div class="mb-3">
+            <label for="city" class="form-label">City</label>
+            <input type="text" class="form-control" id="city" name="city" value="{{ clinic.city }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="state" class="form-label">State</label>
+            <input type="text" class="form-control" id="state" name="state" value="{{ clinic.state }}" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="{% url 'clinic_detail' clinic.id %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

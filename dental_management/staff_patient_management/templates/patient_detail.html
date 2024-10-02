@@ -1,0 +1,13 @@
+<!-- templates/patient_detail.html -->
+<h1>Patient Details</h1>
+<p>Name: {{ patient.name }}</p>
+<p>Date of Birth: {{ patient.date_of_birth }}</p>
+<p>Phone: {{ patient.phone_number }}</p>
+<p>Address: {{ patient.address }}</p>
+<p>SSN Last 4: {{ patient.ssn_last_4 }}</p>
+<p>Gender: {{ patient.gender }}</p>
+<a href="{% url 'edit_patient' patient.id %}">Edit</a>
+<form action="{% url 'delete_patient' patient.id %}" method="post">
+    {% csrf_token %}
+    <button type="submit">Delete</button>
+</form>

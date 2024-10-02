@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Doctor Affiliation{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Add Doctor Affiliation</h2>
+
+    <form id="doctor-affiliation-form" method="POST">
+        {% csrf_token %}
+        
+        <!-- Search and Select Doctor -->
+        <div class="mb-3">
+            <label for="doctor-search" class="form-label">Doctor</label>
+            <input type="text" id="doctor-search" class="form-control" placeholder="Search Doctor...">
+            <select id="doctor-select" name="doctor-select" class="form-control" style="display: none;">
+                <!-- Dynamically populated by JavaScript -->
+            </select>
+            <!-- Hidden input to store the selected doctor's ID -->
+            <input type="hidden" name="doctor" id="doctor-id">
+        </div>
+
+        <!-- Office Address -->
+        <div class="mb-3">
+            <label for="office_address" class="form-label">Office Address</label>
+            <textarea class="form-control" id="office_address" name="office_address" rows="2"></textarea>
+        </div>
+
+        <!-- Day Selection -->
+        <div class="mb-3">
+            <label for="day_of_week" class="form-label">Select Day</label>
+            <select id="day_of_week" class="form-control" name="day_of_week">
+                <option value="Monday">Monday</option>
+                <option value="Tuesday">Tuesday</option>
+                <option value="Wednesday">Wednesday</option>
+                <option value="Thursday">Thursday</option>
+                <option value="Friday">Friday</option>
+                <option value="Saturday">Saturday</option>
+                <option value="Sunday">Sunday</option>
+            </select>
+        </div>
+
+        <!-- Start Time Selection using Bootstrap Dropdown -->
+        <div class="mb-3">
+            <label for="start_time" class="form-label">Select Start Time</label>
+            <select id="start_time" class="form-control" name="start_time">
+                <option value="08:00">08:00</option>
+                <option value="09:00">09:00</option>
+                <option value="10:00">10:00</option>
+                <option value="11:00">11:00</option>
+                <option value="12:00">12:00</option>
+                <option value="13:00">13:00</option>
+                <option value="14:00">14:00</option>
+                <option value="15:00">15:00</option>
+                <option value="16:00">16:00</option>
+                <option value="17:00">17:00</option>
+            </select>
+        </div>
+
+        <!-- End Time Selection using Bootstrap Dropdown -->
+        <div class="mb-3">
+            <label for="end_time" class="form-label">Select End Time</label>
+            <select id="end_time" class="form-control" name="end_time">
+                <option value="09:00">09:00</option>
+                <option value="10:00">10:00</option>
+                <option value="11:00">11:00</option>
+                <option value="12:00">12:00</option>
+                <option value="13:00">13:00</option>
+                <option value="14:00">14:00</option>
+                <option value="15:00">15:00</option>
+                <option value="16:00">16:00</option>
+                <option value="17:00">17:00</option>
+                <option value="18:00">18:00</option>
+            </select>
+        </div>
+
+        <!-- Button to Add Time Slot -->
+        <button type="button" class="btn btn-primary" onclick="addTimeSlot()">Add Time Slot</button>
+        <a href="{% url 'clinic_detail' clinic.id %}" class="btn btn-secondary">Back to Clinic</a>
+
+        <!-- Display Selected Time Slots -->
+        <ul id="time_slots" class="mt-4 list-group"></ul>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary mt-3">Submit</button>
+    </form>
+</div>
+
+<!-- Include Bootstrap 5 -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script>
+    let doctors = [];
+
+    // Fetch all doctors when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch("{% url 'get_all_doctors' %}")
+            .then(response => response.json())
+            .then(data => {
+                doctors = data.doctors; // Store the list of doctors
+            })
+            .catch(error => console.error('Error fetching doctors:', error));
+    });
+
+    // Search functionality for doctors
+    document.getElementById('doctor-search').addEventListener('input', function () {
+        let searchText = this.value.toLowerCase();
+        let selectElement = document.getElementById('doctor-select');
+
+        // Filter doctors based on search input
+        let filteredDoctors = doctors.filter(doctor => doctor.name.toLowerCase().includes(searchText));
+
+        if (filteredDoctors.length > 0) {
+            selectElement.style.display = 'block'; // Show the dropdown
+            selectElement.innerHTML = filteredDoctors.map(doctor => `<option value="${doctor.id}">${doctor.name}</option>`).join('');
+        } else {
+            selectElement.style.display = 'none'; // Hide the dropdown if no matches
+        }
+    });
+
+    // Handle doctor selection
+    document.getElementById('doctor-select').addEventListener('change', function() {
+        const selectedDoctorId = this.value;  // Get the selected doctor's ID
+        document.getElementById('doctor-id').value = selectedDoctorId;  // Set it in the hidden input
+    });
+
+    // Function to add a time slot
+    function addTimeSlot() {
+        const day = document.getElementById('day_of_week').value;
+        const startTime = document.getElementById('start_time').value;
+        const endTime = document.getElementById('end_time').value;
+        
+        if (day && startTime && endTime) {
+            const slot = `${day}: ${startTime} - ${endTime}`;
+            const ul = document.getElementById('time_slots');
+            const li = document.createElement('li');
+            li.classList.add('list-group-item');
+            li.textContent = slot;
+            ul.appendChild(li);
+        } else {
+            alert("Please select a day, start time, and end time.");
+        }
+    }
+
+    // Handle form submission via JavaScript
+    document.getElementById('doctor-affiliation-form').addEventListener('submit', function(event) {
+        event.preventDefault();  // Prevent default form submission
+
+        const formData = new FormData(this);  // Gather all form data
+
+        // Send form data to the backend
+        fetch("{% url 'add_doctor_affiliation' clinic.id %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,  // Send CSRF token
+            },
+            body: formData  
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok.');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                alert('Doctor affiliation added successfully!');
+                window.location.href = "{% url 'clinic_detail' clinic.id %}";  // Redirect to clinic detail page
+            } else {
+                alert('Failed to add doctor affiliation.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+</script>
+{% endblock %}

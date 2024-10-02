@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Doctor Details{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Doctor Details</h2>
+
+    <form method="POST" action="{% url 'edit_doctor' doctor.id %}">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="npi" class="form-label">NPI Number</label>
+            <input type="text" class="form-control" id="npi" name="npi" value="{{ doctor.npi }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" class="form-control" id="name" name="name" value="{{ doctor.name }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email" value="{{ doctor.email }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="phone" class="form-label">Phone Number</label>
+            <input type="tel" class="form-control" id="phone" name="phone_number" value="{{ doctor.phone_number }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="specialties" class="form-label">Specialties</label>
+            <select id="specialties" name="specialties" class="form-select" required multiple>
+                {% for specialty in specialties %}
+                    <option value="{{ specialty.id }}" {% if specialty in doctor.specialties.all %}selected{% endif %}>{{ specialty.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="{% url 'doctor_list' %}" class="btn btn-secondary">Back to List</a>
+    </form>
+
+    <h3 class="mt-5">Affiliated Clinics</h3>
+    <ul class="list-group">
+        {% for clinic in doctor.clinics.all %}
+            <li class="list-group-item">{{ clinic.name }}</li>
+        {% empty %}
+            <li class="list-group-item">No affiliated clinics.</li>
+        {% endfor %}
+    </ul>
+
+    <h3 class="mt-5">Affiliated Patients</h3>
+    <ul class="list-group">
+        {% for patient in doctor.patient_set.all %}
+            <li class="list-group-item">{{ patient.name }} (Last Visit: {{ patient.last_visit_date }})</li>
+        {% empty %}
+            <li class="list-group-item">No affiliated patients.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

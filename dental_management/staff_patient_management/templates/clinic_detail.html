@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Clinic Details - {{ clinic.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Clinic Details - {{ clinic.name }}</h2>
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">{{ clinic.name }}</h5>
+            <p class="card-text"><strong>Phone Number:</strong> {{ clinic.phone_number }}</p>
+            <p class="card-text"><strong>Email:</strong> {{ clinic.email }}</p>
+            <p class="card-text"><strong>Address:</strong> {{ clinic.address }}</p>
+            <p class="card-text"><strong>City:</strong> {{ clinic.city }}</p>
+            <p class="card-text"><strong>State:</strong> {{ clinic.state }}</p>
+        </div>
+    </div>
+
+    <h3 class="mt-4">Affiliated Doctors</h3>
+    {% if clinic.doctors.all %}
+        <ul class="list-group">
+            {% for affiliation in clinic.doctorclinicaffiliation_set.all %}
+                <li class="list-group-item">
+                    <strong>{{ affiliation.doctor.name }}</strong> (NPI: {{ affiliation.doctor.npi }})<br>
+                    <strong>Phone:</strong> {{ affiliation.doctor.phone_number }} | <strong>Email:</strong> {{ affiliation.doctor.email }}<br>
+                    <strong>Office Address:</strong> {{ affiliation.office_address }}<br>
+
+                    <h6 class="mt-2">Schedule:</h6>
+                    <ul>
+                        <li>{{ affiliation.day_of_week }}: {{ affiliation.start_time }} to {{ affiliation.end_time }}</li>
+                    </ul>
+
+                    <!-- Link to edit doctor affiliation (office address and schedule) -->
+                    <a href="{% url 'edit_doctor_affiliation' clinic.id affiliation.doctor.id %}" class="btn btn-sm btn-warning mt-2">Edit Affiliation & Schedule</a>
+                    <!-- Button to remove affiliation -->
+                    <form method="POST" action="{% url 'remove_doctor_affiliation' clinic.id affiliation.doctor.id %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-danger mt-2">Remove</button>
+                    </form>
+                </li>
+            {% empty %}
+                <li class="list-group-item">No doctors affiliated with this clinic yet.</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No doctors affiliated with this clinic.</p>
+    {% endif %}
+
+    <!-- Button to add new doctor affiliation -->
+    <a href="{% url 'add_doctor_affiliation' clinic.id %}" class="btn btn-primary mt-4">Add Doctor Affiliation</a>
+
+    <a href="{% url 'edit_clinic' clinic.id %}" class="btn btn-warning mt-4">Edit Clinic</a>
+    <a href="{% url 'clinic_list' %}" class="btn btn-secondary mt-4">Back to Clinic List</a>
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+<!-- In your add_patient.html template -->
+<form method="POST" action="{% url 'add_patient' %}">
+    {% csrf_token %}
+    <label>Name:</label>
+    <input type="text" name="name" required><br>
+    <label>Date of Birth:</label>
+    <input type="date" name="date_of_birth" required><br>
+    <label>Phone:</label>
+    <input type="text" name="phone_number" required><br>
+    <label>Address:</label>
+    <input type="text" name="address" required><br>
+    <label>SSN Last 4:</label>
+    <input type="text" name="ssn_last_4" required><br>
+    <label>Gender:</label>
+    <input type="text" name="gender" required><br>
+    <button type="submit">Submit</button>
+</form>

@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}Doctors List{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Doctors List</h2>
+
+    <!-- Button to trigger modal for adding a new doctor -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>All Doctors</h3>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDoctorModal">
+            <i class="bi bi-plus-lg"></i> Add New Doctor
+        </button>
+    </div>
+
+    <!-- Doctors Table -->
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>NPI</th>
+                    <th>Name</th>
+                    <th>Specialties</th>
+                    <th>Clinics</th>
+                    <th>Patients</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doctor in doctors %}
+                    <tr>
+                        <td>{{ doctor.npi }}</td>
+                        <td>{{ doctor.name }}</td>
+                        <td>{{ doctor.specialties.all|join:", " }}</td> <!-- Display specialties as a comma-separated string -->
+                        <td>{{ doctor.clinics.count }}</td>
+                        <td>{{ doctor.patient_set.count }}</td>
+                        <td>
+                            <a href="{% url 'doctor_detail' doctor.id %}" class="btn btn-info btn-sm">View</a>
+                            <a href="{% url 'edit_doctor' doctor.id %}" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="{% url 'delete_doctor' doctor.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this doctor?');">Delete</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">No doctors available.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add Doctor Modal -->
+<div class="modal fade" id="addDoctorModal" tabindex="-1" aria-labelledby="addDoctorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{% url 'add_doctor' %}" id="doctorForm">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addDoctorModalLabel">Add New Doctor</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="doctorNPI" class="form-label">NPI Number</label>
+                        <input type="text" class="form-control" id="doctorNPI" name="npi" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="doctorName" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="doctorName" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="doctorPhone" class="form-label">Phone Number</label>
+                        <input type="tel" class="form-control" id="doctorPhone" name="phone_number" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="doctorEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="doctorEmail" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="doctorSpecialties" class="form-label">Specialties</label>
+                        <div>
+                            <input type="checkbox" name="specialties" value="Cleaning" id="specialty_cleaning">
+                            <label for="specialty_cleaning">Cleaning</label>
+                        </div>
+                        <div>
+                            <input type="checkbox" name="specialties" value="Filling" id="specialty_filling">
+                            <label for="specialty_filling">Filling</label>
+                        </div>
+                        <div>
+                            <input type="checkbox" name="specialties" value="Root Canal" id="specialty_root_canal">
+                            <label for="specialty_root_canal">Root Canal</label>
+                        </div>
+                        <div>
+                            <input type="checkbox" name="specialties" value="Crown" id="specialty_crown">
+                            <label for="specialty_crown">Crown</label>
+                        </div>
+                        <div>
+                            <input type="checkbox" name="specialties" value="Teeth Whitening" id="specialty_teeth_whitening">
+                            <label for="specialty_teeth_whitening">Teeth Whitening</label>
+                        </div>
+                    </div>
+                            
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Doctor</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const doctorForm = document.getElementById('doctorForm');
+
+        doctorForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(doctorForm);
+            fetch("{% url 'add_doctor' %}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                    'Accept': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const modalElement = document.getElementById('addDoctorModal');
+                    const modal = bootstrap.Modal.getInstance(modalElement);
+                    modal.hide();
+                    doctorForm.reset();
+                    location.reload();
+                } else {
+                    alert('Error adding doctor: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while adding the doctor.');
+            });
+        });
+    });
+</script>
+{% endblock %}

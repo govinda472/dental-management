@@ -1,0 +1,16 @@
+<!-- templates/edit_doctor.html -->
+<h1>Edit Doctor</h1>
+<form method="post">
+    {% csrf_token %}
+    <label>Name:</label>
+    <input type="text" name="name" value="{{ doctor.name }}"><br>
+    <label>NPI:</label>
+    <input type="text" name="npi" value="{{ doctor.npi }}"><br>
+    <label>Phone:</label>
+    <input type="text" name="phone_number" value="{{ doctor.phone_number }}"><br>
+    <label>Email:</label>
+    <input type="email" name="email" value="{{ doctor.email }}"><br>
+    <label>Specialties:</label>
+    <input type="text" name="specialties" value="{{ doctor.specialties }}"><br>
+    <button type="submit">Save</button>
+</form>
